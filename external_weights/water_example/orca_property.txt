@@ -1,0 +1,138 @@
+-------------------------------------------------------------
+----------------------- !PROPERTIES! ------------------------
+-------------------------------------------------------------
+# -----------------------------------------------------------
+$ PAL_Flags
+   description: The PAL Flags
+   geom. index: 1
+   prop. index: 1
+        Diskflag:     2
+# -----------------------------------------------------------
+$ SCF_Energy
+   description: The SCF energy
+   geom. index: 1
+   prop. index: 1
+        SCF Energy:      -76.4228744710
+# -----------------------------------------------------------
+$ DFT_Energy
+   description: The DFT energy
+   geom. index: 1
+   prop. index: 1
+   Number of Alpha Electrons                  5.0000009961 
+   Number of Beta  Electrons                  5.0000009961 
+   Total number of  Electrons                10.0000019921 
+   Exchange energy                           -7.1234714141 
+   Correlation energy                        -0.4024326794 
+   Correlation energy NL                      0.0000000000 
+   Exchange-Correlation energy               -7.5259040935 
+   Embedding correction                       0.0000000000 
+   Total DFT Energy (No VdW correction)     -76.4228744710 
+# -----------------------------------------------------------
+$ Mayer_Pop
+   description: The Mayer population analysis
+   geom. index: 1
+   prop. index: 1
+     Number of atoms                     : 3
+     Threshold for printing              : 0.1000000
+     Number of bond orders printed       : 2
+  NA   - Mulliken gross atomic population
+  ZA   - Total nuclear charge
+  QA   - Mulliken gross atomic charge
+  VA   - Mayer's total valence
+  BVA  - Mayer's bonded valence
+  FA   - Mayer's free valence
+  ATOM       NA         ZA         QA         VA         BVA        FA
+  0   0     8.4360     8.0000    -0.4360     2.0443     2.0443    -0.0000
+  1   0     0.7820     1.0000     0.2180     1.0363     1.0363     0.0000
+  2   0     0.7820     1.0000     0.2180     1.0363     1.0363    -0.0000
+      Bond orders larger than 0.1000000
+           Atom A     A.N. of A          Atom B    A.N. of B              Bond order
+                0             8               1            1                1.022128
+                0             8               2            1                1.022129
+# -----------------------------------------------------------
+$ Calculation_Info
+   description: Details of the calculation
+   geom. index: 1
+   prop. index: 1
+     Multiplicity:                          1
+     Charge:                                0
+     number of atoms:                       3
+     number of electrons:                   0
+     number of frozen core electrons:       0
+     number of correlated electrons:        0
+     number of basis functions:             58
+     number of aux C basis functions:       0
+     number of aux J basis functions:       71
+     number of aux JK basis functions:      0
+     number of aux CABS basis functions:    0
+     Total Energy                           -76.422874
+# -----------------------------------------------------------
+$ SCF_Electric_Properties
+   description: The SCF Calculated Electric Properties
+   geom. index: 1
+   prop. index: 1
+       Filename                          : orca.scfp 
+       Do Dipole Moment Calculation      : true 
+       Do Quadrupole Moment Calculation  : true 
+       Do Polarizability Calculation     : true 
+** Dipole moment part of electric properties **
+        Magnitude of dipole moment (Debye) :        1.9172732815
+        Electronic Contribution:
+                  0    
+      0       0.000002
+      1      -0.221029
+      2      -0.000002
+        Nuclear Contribution:
+                  0    
+      0       0.000000
+      1       0.975327
+      2       0.000000
+        Total Dipole moment:
+                  0    
+      0       0.000002
+      1       0.754298
+      2      -0.000002
+** Quadrupole moment part of electric properties **
+        Isotropic Quadrupole moment :      -4.3792264997
+        Nuclear part of quadrupole moment
+                  0          1          2    
+      0       4.092250   0.000000   0.000000
+      1       0.000000   2.056386   0.000000
+      2       0.000000   0.000000   0.000000
+        Electronic part of quadrupole moment
+                  0          1          2    
+      0      -7.324000  -0.000000   0.000000
+      1      -0.000000  -6.499107  -0.000000
+      2       0.000000  -0.000000  -5.463207
+        Total quadrupole moment
+                  0          1          2    
+      0      -3.231751  -0.000000   0.000000
+      1      -0.000000  -4.442722  -0.000000
+      2       0.000000  -0.000000  -5.463207
+        Quadrupole moment diagonaized tensor
+                  0    
+      0      -5.463207
+      1      -4.442722
+      2      -3.231751
+** Polarizabilities part of electric properties **
+        Isotropic polarizability :        7.0683242652
+        The raw cartesian tensor (atomic units):
+                  0          1          2    
+      0       8.437803   0.000001  -0.000001
+      1       0.000001   7.250794   0.000001
+      2      -0.000001   0.000001   5.516375
+        Diagonalised polarizability tensor :
+                  0    
+      0       5.516375
+      1       7.250794
+      2       8.437803
+# -------------------------------------------------------------
+----------------------- !GEOMETRIES! ------------------------
+# -------------------------------------------------------------
+------------------------ !GEOMETRY! -------------------------
+    Number of atoms:    3 
+    Geometry Index:     1 
+    Coordinates:
+               0 O      0.000000000000   -0.065560000000    0.000000000000
+               1 H      0.756950000000    0.520320000000    0.000000000000
+               2 H     -0.756950000000    0.520320000000    0.000000000000

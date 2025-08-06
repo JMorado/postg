@@ -1,0 +1,75 @@
+
+================================================================================
+ _ __ _
+/ (..) \ Welcome to HORTON 2.1.0!
+\/ || \/
+ |_''_|  HORTON is written and maintained by by Toon Verstraelen (1).
+
+         This version contains contributions from Toon Verstraelen (1), Pawel Tecmer (2),
+         Farnaz Heidar-Zadeh (2), Cristina E. González-Espinoza (2), Matthew Chan (2),
+         Taewon D. Kim (2), Katharina Boguslawski (2), Stijn Fias (3),
+         Steven Vandenbrande (1), Diego Berrocal (2), and Paul W. Ayers (2)
+
+         (1) Center for Molecular Modeling (CMM), Ghent University, Ghent, Belgium.
+         (2) The Ayers Group, McMaster University, Hamilton, Ontario, Canada.
+         (3) General Chemistry (ALGC), Free University of Brussels, Brussels, Belgium.
+
+         More information about HORTON can be found on this website:
+         http://theochem.github.com/horton/
+
+         The purpose of this log file is to track the progress and quality of a
+         computation. Useful numerical output may be written to a checkpoint
+         file and is accessible through the Python scripting interface.
+
+================================================================================
+User:           joaomorado
+Machine info:   Linux yoda 6.8.0-51-generic #52~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Dec  9
+                15:00:52 UTC 2 x86_64
+Time:           2025-02-05T20:06:17.144665
+Python version: 3.12.7 | packaged by conda-forge | (main, Oct  4 2024, 16:05:46) [GCC 13.3.0]
+HORTON version: 2.1.0
+Current Dir:    /home/joaomorado/EMLE_WATER_MODEL/b3lyp
+Command line:   /home/joaomorado/opt/micromamba/envs/emle-bespoke/bin/horton-wpart.py
+                orca.molden.input horton.out mbis --lmax 3
+HORTON module:  /home/joaomorado/opt/micromamba/envs/emle-bespoke/lib/python3.12/site-packages/horto
+                n/log.py
+
+!WARNING! Skipping because the group "/" is already present in the file "horton.out" and it is not
+          empty.
+
+When you use this computation for the preparation of a scientific publication, cite the following
+references:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Details can be found in the file
+/home/joaomorado/opt/micromamba/envs/emle-bespoke/share/horton/references.bib
+
+User:           joaomorado
+Machine info:   Linux yoda 6.8.0-51-generic #52~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Dec  9
+                15:00:52 UTC 2 x86_64
+Time:           2025-02-05T20:06:17.144927
+Python version: 3.12.7 | packaged by conda-forge | (main, Oct  4 2024, 16:05:46) [GCC 13.3.0]
+HORTON version: 2.1.0
+Current Dir:    /home/joaomorado/EMLE_WATER_MODEL/b3lyp
+Command line:   /home/joaomorado/opt/micromamba/envs/emle-bespoke/bin/horton-wpart.py
+                orca.molden.input horton.out mbis --lmax 3
+HORTON module:  /home/joaomorado/opt/micromamba/envs/emle-bespoke/lib/python3.12/site-packages/horto
+                n/log.py
+
+Overview of CPU time usage.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Label             Total      Own
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Total               0.1      0.1 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  CPU user time   :       0.14
+  CPU system time :       0.04
+  Page swaps      :          0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+================================================================================
+ _    _
+/ )--( \ End of the HORTON program.
+\|  \ |/
+ |_||_|  Thank you for using HORTON 2.1.0! See you soon!
+================================================================================
