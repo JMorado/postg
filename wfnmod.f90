@@ -20,7 +20,8 @@ module wfnmod
   implicit none
 
   private
-  public :: atomin, readwfn, readwfx, readfchk, readtck, readmolden, evalwfn, edisp
+  public :: atomin, readwfn, readwfx, readfchk, readtck, readmolden, evalwfn, edisp, &
+            read_external_weights, read_external_weights_for_atoms, write_mesh_to_file
 
   ! double factorials minus one
   integer, parameter :: dfacm1(0:8) = (/1,1,1,2,3,8,15,48,105/) 
@@ -161,7 +162,7 @@ module wfnmod
 
 contains
 
-  subroutine atomin(m,mesh,qpro)
+  subroutine atomin(m,mesh,qpro,use_external_weights,weightfile)
     use atomicdata
     use tools_math, only: spline
     implicit none
@@ -169,6 +170,8 @@ contains
     type(molecule), intent(in) :: m
     type(tmesh), intent(inout) :: mesh
     real*8, intent(out) :: qpro
+    logical, intent(in) :: use_external_weights
+    character*(mline), intent(in) :: weightfile
     
     character*(mline) :: afile
     real*8 :: rmid, rdum(8), h, q, x(3), r, dq, arho1, arho2, arho, rdata
@@ -185,67 +188,187 @@ contains
     hirsh = 0d0
     promol = 0d0
 
-    open(unit=imosa,status='scratch',form='unformatted')
-    do i = 1, m%n
-       if (m%z(i) < 1) cycle
-       rmid = 1d0 / m%z(i)**third
-
-       if (m%z(i) <= 2) then
-          ndata = 200
-       elseif (m%z(i) <= 10) then
-          ndata = 400
-       elseif (m%z(i) <= 18) then
-          ndata = 600
-       elseif (m%z(i) <= 36) then
-          ndata = 800
-       elseif (m%z(i) <= 54) then
-          ndata = 1000
-       elseif (m%z(i) <= 86) then
-          ndata = 1200
-       elseif (m%z(i) <= 94) then
-          ndata = 1400
-       else
-          call error('atomin','atomic number out of range',2)
-       endif
-       allocate(f1(0:ndata),a1(0:ndata),b1(0:ndata),c1(0:ndata))
-       if (istat /= 0) call error('atomin','could not allocate memory for f1, a1, b1, c1',2)
+    if (use_external_weights) then
+       ! Read external weights from file
+       call read_external_weights(m,mesh,weightfile,hirsh,promol)
+       qpro = sum(mesh%w * promol)
        
-       h = 1d0 / (ndata+1)
-       f1(0) = 0d0
-       do j = 1, ndata
-          q = h * j
-          rdata = rmid * q / (1.d0-q)
-          f1(j) = ftot(j,m%z(i))
+       ! Write external weights to scratch file
+       open(unit=ihrsh,status='scratch',form='unformatted')
+       
+       ! Read the external weights properly for each atom
+       call read_external_weights_for_atoms(m,mesh,weightfile)
+    else
+       ! Use standard Hirshfeld weights computation
+       open(unit=imosa,status='scratch',form='unformatted')
+       do i = 1, m%n
+          if (m%z(i) < 1) cycle
+          rmid = 1d0 / m%z(i)**third
+
+          if (m%z(i) <= 2) then
+             ndata = 200
+          elseif (m%z(i) <= 10) then
+             ndata = 400
+          elseif (m%z(i) <= 18) then
+             ndata = 600
+          elseif (m%z(i) <= 36) then
+             ndata = 800
+          elseif (m%z(i) <= 54) then
+             ndata = 1000
+          elseif (m%z(i) <= 86) then
+             ndata = 1200
+          elseif (m%z(i) <= 94) then
+             ndata = 1400
+          else
+             call error('atomin','atomic number out of range',2)
+          endif
+          allocate(f1(0:ndata),a1(0:ndata),b1(0:ndata),c1(0:ndata))
+          if (istat /= 0) call error('atomin','could not allocate memory for f1, a1, b1, c1',2)
+          
+          h = 1d0 / (ndata+1)
+          f1(0) = 0d0
+          do j = 1, ndata
+             q = h * j
+             rdata = rmid * q / (1.d0-q)
+             f1(j) = ftot(j,m%z(i))
+          enddo
+          call spline(h,f1,a1,b1,c1,ndata,0.d0)
+
+          do kk = 1, mesh%n
+             x = mesh%x(:,kk) - m%x(:,i)
+             r = sqrt(x(1)**2+x(2)**2+x(3)**2)
+             q = r / (r + rmid)
+             intq = int((ndata+1) * q)
+             dq = q - intq * h
+             arho = abs((f1(intq)+dq*(a1(intq)+dq*(b1(intq)+dq*c1(intq)))))/r**2
+             hirsh(kk) = arho
+             promol(kk) = promol(kk) + arho
+          enddo
+
+          write(imosa) (hirsh(j),j=1,mesh%n)
+          deallocate(f1,a1,b1,c1)
        enddo
-       call spline(h,f1,a1,b1,c1,ndata,0.d0)
+       qpro = sum(mesh%w * promol)
 
-       do kk = 1, mesh%n
-          x = mesh%x(:,kk) - m%x(:,i)
-          r = sqrt(x(1)**2+x(2)**2+x(3)**2)
-          q = r / (r + rmid)
-          intq = int((ndata+1) * q)
-          dq = q - intq * h
-          arho = abs((f1(intq)+dq*(a1(intq)+dq*(b1(intq)+dq*c1(intq)))))/r**2
-          hirsh(kk) = arho
-          promol(kk) = promol(kk) + arho
+       open(unit=ihrsh,status='scratch',form='unformatted')
+       rewind(imosa)
+       do i = 1, m%n
+          if (m%z(i) < 1) cycle
+          read(imosa) (hirsh(j),j=1,mesh%n)
+          write(ihrsh) (hirsh(j)/max(promol(j),1d-40),j=1,mesh%n)
        enddo
+       close(imosa)
+    endif
 
-       write(imosa) (hirsh(j),j=1,mesh%n)
-       deallocate(f1,a1,b1,c1)
-    enddo
-    qpro = sum(mesh%w * promol)
-
-    open(unit=ihrsh,status='scratch',form='unformatted')
-    rewind(imosa)
-    do i = 1, m%n
-       if (m%z(i) < 1) cycle
-       read(imosa) (hirsh(j),j=1,mesh%n)
-       write(ihrsh) (hirsh(j)/max(promol(j),1d-40),j=1,mesh%n)
-    enddo
     deallocate(hirsh,promol)
-    close(imosa)
 
   end subroutine atomin
+
+  ! Read external weights from file and write to scratch
+  subroutine read_external_weights_for_atoms(m,mesh,weightfile)
+    implicit none
+
+    type(molecule), intent(in) :: m
+    type(tmesh), intent(in) :: mesh
+    character*(mline), intent(in) :: weightfile
+
+    integer :: iwf, i, j, istat
+    logical :: ok
+    real*8, allocatable :: external_weights(:,:)
+
+    inquire(file=weightfile,exist=ok)
+    if (.not.ok) then
+       call error('read_external_weights_for_atoms','weight file not found: ' // trim(weightfile),2)
+    endif
+
+    ! Open and read the weight file
+    iwf = 15
+    open(unit=iwf, file=weightfile, status='old', action='read', iostat=istat)
+    if (istat /= 0) call error('read_external_weights_for_atoms','error opening weight file',2)
+
+    ! Allocate temporary array to read weights for each atom
+    allocate(external_weights(mesh%n,m%n), stat=istat)
+    if (istat /= 0) call error('read_external_weights_for_atoms','could not allocate external_weights',2)
+
+    ! Read the weight data - format should be one line per grid point with weights for each atom
+    ! Expected format: weight1 weight2 weight3 ... for each mesh point
+    do i = 1, mesh%n
+       read(iwf, *, iostat=istat) (external_weights(i,j), j=1,m%n)
+       if (istat /= 0) then
+          call error('read_external_weights_for_atoms','error reading weights at grid point',2)
+       endif
+    enddo
+
+    close(iwf)
+
+    ! Write the weights for each atom to the scratch file
+    do j = 1, m%n
+       if (m%z(j) < 1) cycle
+       write(ihrsh) (external_weights(i,j), i=1,mesh%n)
+    enddo
+
+    deallocate(external_weights)
+
+  end subroutine read_external_weights_for_atoms
+
+  ! Simple reader for calculating promolecular density
+  subroutine read_external_weights(m,mesh,weightfile,hirsh,promol)
+    implicit none
+
+    type(molecule), intent(in) :: m
+    type(tmesh), intent(in) :: mesh
+    character*(mline), intent(in) :: weightfile
+    real*8, intent(out) :: hirsh(mesh%n), promol(mesh%n)
+
+    integer :: iwf, i, j, istat
+    logical :: ok
+    real*8, allocatable :: external_weights(:,:)
+
+    ! Initialize
+    hirsh = 0d0
+    promol = 0d0
+
+    ! Check if weight file exists
+    inquire(file=weightfile,exist=ok)
+    if (.not.ok) then
+       call error('read_external_weights','weight file not found: ' // trim(weightfile),2)
+    endif
+
+    ! Open and read the weight file
+    iwf = 15
+    open(unit=iwf, file=weightfile, status='old', action='read', iostat=istat)
+    if (istat /= 0) call error('read_external_weights','error opening weight file',2)
+
+    ! Allocate temporary array to read weights for each atom
+    allocate(external_weights(mesh%n,m%n), stat=istat)
+    if (istat /= 0) call error('read_external_weights','could not allocate external_weights',2)
+
+    ! Read the weight data - format should be one line per grid point with weights for each atom
+    ! Expected format: weight1 weight2 weight3 ... for each mesh point
+    do i = 1, mesh%n
+       read(iwf, *, iostat=istat) (external_weights(i,j), j=1,m%n)
+       if (istat /= 0) then
+          call error('read_external_weights','error reading weights at grid point',2)
+       endif
+    enddo
+
+    close(iwf)
+
+    ! Calculate promolecular density (sum of all atomic contributions)
+    do i = 1, mesh%n
+       promol(i) = 0d0
+       do j = 1, m%n
+          if (m%z(j) < 1) cycle
+          promol(i) = promol(i) + external_weights(i,j)
+       enddo
+    enddo
+
+    ! Store weights for first atom (dummy value)
+    hirsh(:) = external_weights(:,1)
+
+    deallocate(external_weights)
+
+  end subroutine read_external_weights
 
   !> Read wfn file
   function readwfn(file,egauss) result(m)
@@ -2662,5 +2785,32 @@ contains
 999 call error("read_reals1","unexpected end of file",2)
  
   endfunction read_reals1
+
+  ! Write mesh points to file
+  subroutine write_mesh_to_file(mesh, filename)
+    implicit none
+    
+    type(tmesh), intent(in) :: mesh
+    character*(mline), intent(in) :: filename
+    
+    integer :: i, iunit, istat
+    
+    iunit = 20
+    open(unit=iunit, file=filename, status='replace', action='write', iostat=istat)
+    if (istat /= 0) call error('write_mesh_to_file','error opening mesh file for writing',2)
+    
+    ! Write header with mesh size
+    write(iunit, '("# Mesh points for postg")')
+    write(iunit, '("# Number of points: ",I0)') mesh%n
+    write(iunit, '("# Format: x y z weight")')
+    
+    ! Write mesh points and weights
+    do i = 1, mesh%n
+       write(iunit, '(4(ES23.15,1X))') mesh%x(1,i), mesh%x(2,i), mesh%x(3,i), mesh%w(i)
+    enddo
+    
+    close(iunit)
+    
+  end subroutine write_mesh_to_file
 
 end module wfnmod

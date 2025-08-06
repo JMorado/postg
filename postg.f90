@@ -48,6 +48,10 @@ program postg
   real*8 :: xdm_temp, c1br, c2br, z_damp
   integer :: i_code, xdm_damping
 
+  ! External weights variables
+  character*(mline) :: weightfile, meshfile
+  logical :: use_external_weights, write_mesh
+
   ! init
   chf = 0d0
   c1br = 0d0
@@ -178,9 +182,15 @@ program postg
   ! - c9: calculate the C9 dispersion coefficients (no contribution to the energy).
   ! - xcdm: calculate same- and opposite-spin dynamical correlation contribution
   !         to the exchange-hole dipole moment (contributes to the energy).
+  ! - weights filename: use external weights from file instead of Hirshfeld weights
+  ! - writemesh filename: write the mesh to a file 
   ! If more are encountered, call an error.
   usec9 = .false.
   usexcdm = .false.
+  weightfile = ""
+  use_external_weights = .false.
+  meshfile = ""
+  write_mesh = .false.
   do
       if (narg_i > narg) exit
       select case (trim(lower(buffer_arr(narg_i))))
@@ -190,6 +200,24 @@ program postg
       case('xcdm','c')
           usexcdm = .true.
           write(iout,'("use_xcdm      ",L)') usexcdm
+      case('weights')
+          if (narg_i + 1 > narg) then
+              write (iout,'("Error: weights keyword requires filename")')
+              goto 999
+          endif
+          narg_i = narg_i + 1
+          weightfile = trim(buffer_arr(narg_i))
+          use_external_weights = .true.
+          write(iout,'("weight file   ",A)') trim(weightfile)
+      case('writemesh')
+          if (narg_i + 1 > narg) then
+              write (iout,'("Error: writemesh keyword requires filename")')
+              goto 999
+          endif
+          narg_i = narg_i + 1
+          meshfile = trim(buffer_arr(narg_i))
+          write_mesh = .true.
+          write(iout,'("mesh file     ",A)') trim(meshfile)
       case default
           call error("postg","unknown keyword " // buffer_arr(narg_i),2)
       end select
@@ -247,8 +275,14 @@ program postg
   mesh = genmesh(mol)
   write (iout,'("mesh size     ",I10)') mesh%n
 
+  ! optionally write the mesh to file
+  if (write_mesh) then
+     call write_mesh_to_file(mesh, meshfile)
+     write (iout,'("mesh written to ",A)') trim(meshfile)
+  endif
+
   ! open scratch files and generate the promolecular density
-  call atomin(mol,mesh,qpro)
+  call atomin(mol,mesh,qpro,use_external_weights,weightfile)
   write (iout,'("nelec         ",F12.6)') mol%nelec
   write (iout,'("nelec (promol)",F12.6)') qpro
 
