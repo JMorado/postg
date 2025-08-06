@@ -121,7 +121,7 @@ def read_positions_from_wfn(wfn_file: str) -> npt.NDArray[np.float64]:
     return np.array(positions)
 
 
-def rho_valence(r: float, valence_charge: float, valence_width: float) -> float:
+def rho_valence(r: float, n_valence: float, valence_width: float) -> float:
     """
     Calculate the analytical MBIS valence density at distance r.
 
@@ -129,8 +129,8 @@ def rho_valence(r: float, valence_charge: float, valence_width: float) -> float:
     ----------
     r : float
         Distance from the atom center in Bohr.
-    valence_charge : float
-        Valence charge (N).
+    n_valence : float
+        Number of valence electrons.
     valence_width : float
         Valence width parameter (S).
 
@@ -147,8 +147,8 @@ def rho_valence(r: float, valence_charge: float, valence_width: float) -> float:
     """
     if r < 0:
         return 0.0
-    coef = (valence_charge * valence_width ** 3) / (8 * np.pi)
-    return coef * np.exp(-valence_width * r)
+    coef = n_valence / (8 * np.pi * valence_width ** 3)
+    return coef * np.exp(-r / valence_width)
 
 
 def compute_weights(
@@ -182,7 +182,7 @@ def compute_weights(
         rho_vals = []
         for pos, N, S in zip(atom_positions, valence_charges, valence_widths):
             r = np.linalg.norm(p - pos)
-            rho = rho_valence(r, -N, 1/S)
+            rho = rho_valence(r, -N, S)
             rho_vals.append(rho)
         total = sum(rho_vals)
         if total > 0:
